@@ -1,0 +1,533 @@
+package airline;
+
+import java.util.*;
+
+public class SeatMap {
+    // Define seat maps for First, Business, and Traveller classes
+	public Map<Integer, String[]> firstClassSeatMap = new HashMap<>();
+    public Map<Integer, String[]> businessClassSeatMap = new HashMap<>();
+    public Map<Integer, String[]> travellerClassSeatMap = new HashMap<>();
+
+    // Constructor to initialize seat maps
+    public SeatMap() {
+        initializeFirstClassSeatMap();
+        initializeBusinessClassSeatMap();
+        initializeTravellerClassSeatMap();
+    }
+
+    // Initialize seat map for First Class
+    public void initializeFirstClassSeatMap() {
+        for (int row = 1; row <= 3; row++) {
+            String[] seatRow = {"Window", "Aisle", "Aisle", "Window"};
+            firstClassSeatMap.put(row, seatRow);
+        }
+    }
+
+    // Initialize seat map for Business Class
+    public void initializeBusinessClassSeatMap() {
+        for (int row = 4; row <= 18; row++) {
+            String[] seatRow = {"Window", "Standard", "Aisle", "Aisle", "Standard", "Window"};
+            businessClassSeatMap.put(row, seatRow);
+        }
+    }
+
+    // Initialize seat map for Traveller Class
+    public void initializeTravellerClassSeatMap() {
+        for (int row = 19; row <= 37; row++) {
+            String[] seatRow = {"Window", "Standard", "Standard", "Aisle", "Aisle", "Standard", "Standard", "Window"};
+            travellerClassSeatMap.put(row, seatRow);
+        }
+    }
+
+    
+ // Mark a seat as reserved with "X" and display the updated seat map
+    public void markReservedSeat(String className, int seatNumber, String seatType) {
+        Map<Integer, String[]> seatMap = null;
+
+        if (className.equals("First")) {
+            seatMap = firstClassSeatMap;
+        } else if (className.equals("Business")) {
+            seatMap = businessClassSeatMap;
+        } else if (className.equals("Traveller")) {
+            seatMap = travellerClassSeatMap;
+        }
+
+        if (seatMap != null) {
+            int rowIndex = calculateRowIndex(seatNumber);
+            int columnIndex = calculateColumnIndex(seatType);
+
+            if (seatMap.containsKey(rowIndex)) {
+                String[] row = seatMap.get(rowIndex);
+                if (columnIndex >= 0 && columnIndex < row.length) {
+                    row[columnIndex] = "X";
+                }
+            }
+
+            displaySeatMap(className);
+        } else {
+            System.out.println("Invalid class name");
+        }
+    }
+
+    // Calculate the row index based on the seat number
+    private int calculateRowIndex(int seatNumber) {
+        // Implement your logic here to map seatNumber to rowIndex
+        return seatNumber;
+    }
+
+    // Calculate the column index based on the seat type
+    private int calculateColumnIndex(String seatType) {
+        // Implement your logic here to map seatType to columnIndex
+        return 0;
+    }
+    
+    
+     
+    // Display seat map for a specific class
+    public void displaySeatMap(String className) {
+        Map<Integer, String[]> seatMap = null;
+        String[] columns = null;
+        if (className.equals("First")) {
+            seatMap = firstClassSeatMap;
+            columns = new String[]{"A", "D", "E", "H"};
+        } else if (className.equals("Business")) {
+            seatMap = businessClassSeatMap;
+            columns = new String[]{"A", "C", "D", "E", "G", "H"};
+        } else if (className.equals("Traveller")) {
+            seatMap = travellerClassSeatMap;
+            columns = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
+        }
+
+        if (seatMap != null && columns != null) {
+            // Extract and sort seat numbers
+            List<Integer> seatNumbers = new ArrayList<>(seatMap.keySet());
+            Collections.sort(seatNumbers);
+
+            // Display column labels
+            System.out.print("   ");
+            for (String column : columns) {
+                System.out.printf("%-10s", column);
+            }
+            System.out.println();
+
+            // Display seat map in ascending seat number order
+            for (Integer seatNumber : seatNumbers) {
+                String[] seatRow = seatMap.get(seatNumber);
+
+                System.out.printf("%-2d ", seatNumber);
+                for (String seat : seatRow) {
+                    System.out.printf("%-10s", seat);
+                }
+                System.out.println();
+            }
+        } else {
+            System.out.println("Invalid class name");
+        }
+    }
+    
+    // Mark a seat as reserved
+    public void markReservedSeat(String className, String seatTypeOrNumber) {
+        Map<Integer, String[]> seatMap = null;
+        String[] columns = null;
+
+        if (className.equals("First")) {
+            seatMap = firstClassSeatMap;
+            columns = new String[]{"A", "D", "E", "H"};
+        } else if (className.equals("Business")) {
+            seatMap = businessClassSeatMap;
+            columns = new String[]{"A", "C", "D", "E", "G", "H"};
+        } else if (className.equals("Traveller")) {
+            seatMap = travellerClassSeatMap;
+            columns = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
+        }
+
+        if (seatMap != null && columns != null) {
+            // Extract seatNumber and seatType from seatTypeOrNumber
+            String seatNumber = seatTypeOrNumber.substring(0, seatTypeOrNumber.length() - 1);
+            String seatType = seatTypeOrNumber.substring(seatTypeOrNumber.length() - 1);
+
+            // Calculate the row index and column index
+            int rowIndex = Integer.parseInt(seatNumber) - 1;
+            int columnIndex = Arrays.asList(columns).indexOf(seatType);
+
+            // Update the seat map to mark the seat as reserved with "X"
+            String[] seatRow = seatMap.get(rowIndex + 1);
+            seatRow[columnIndex] = "X";
+        }
+    }
+
+    // Mark a seat as cancelled
+    public void markCancelledSeat(String seatReserved) {
+        String[] seatInfo = seatReserved.split("");
+        int rowIndex = Integer.parseInt(seatInfo[0]) - 1;
+        String seatType = seatInfo[1];
+
+        Map<Integer, String[]> seatMap = getSeatMapBySeatType(seatType);
+
+        if (seatMap != null) {
+            String[] seatRow = seatMap.get(rowIndex + 1);
+            int columnIndex = Arrays.asList(seatRow).indexOf("X");
+
+            if (columnIndex != -1) {
+                seatRow[columnIndex] = seatType;
+            }
+        }
+    }
+
+    // Get the seat map based on seat type
+    private Map<Integer, String[]> getSeatMapBySeatType(String seatType) {
+        if (seatType.equals("A") || seatType.equals("D") || seatType.equals("E") || seatType.equals("H")) {
+            return firstClassSeatMap;
+        } else if (seatType.equals("A") || seatType.equals("C") || seatType.equals("D") || seatType.equals("E") || seatType.equals("G") || seatType.equals("H")) {
+            return businessClassSeatMap;
+        } else {
+            return null;
+        }
+    }
+
+    
+    
+    public static void main(String[] args) {
+        // You can add your code here to test the SeatMap class
+        // For example:
+        SeatMap seatMap = new SeatMap();
+        System.out.println("First Class Seat Map:");
+        seatMap.displaySeatMap("First");
+
+        System.out.println("\nBusiness Class Seat Map:");
+        seatMap.displaySeatMap("Business");
+
+        System.out.println("\nTraveller Class Seat Map:");
+        seatMap.displaySeatMap("Traveller");
+    }
+   
+}
+
+
+package airline;
+
+public class Passenger {
+    // Fields
+    private String firstName;
+    private String lastName;
+    private String passportNumber;
+    private String seatReserved;
+    private String passengerClass; // First, Business, or Traveller
+    private String seatType;       // Aisle, Standard, or Window
+
+    // Constructor
+    public Passenger(String firstName, String lastName, String passportNumber, String seatReserved, String passengerClass, String seatType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.passportNumber = passportNumber;
+        this.seatReserved = seatReserved;
+        this.passengerClass = passengerClass;
+        this.seatType = seatType;
+    }
+
+    // Getter methods
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPassportNumber() {
+        return passportNumber;
+    }
+
+    public String getSeatReserved() {
+        return seatReserved;
+    }
+
+    public String getPassengerClass() {
+        return passengerClass;
+    }
+
+    public String getSeatType() {
+        return seatType;
+    }
+
+    // Setter methods
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPassportNumber(String passportNumber) {
+        this.passportNumber = passportNumber;
+    }
+
+    public void setSeatReserved(String seatReserved) {
+        this.seatReserved = seatReserved;
+    }
+
+    public void setPassengerClass(String passengerClass) {
+        this.passengerClass = passengerClass;
+    }
+
+    public void setSeatType(String seatType) {
+        this.seatType = seatType;
+    }
+}
+
+
+package airline;
+
+import java.util.*;
+
+public class Report {
+    private List<Passenger> passengerData;
+
+    // Constructor to initialize the passenger data
+    public Report(List<Passenger> passengerData) {
+        this.passengerData = passengerData;
+    }
+
+    // Method to generate the cost report
+    public void generateCostReport() {
+        // Initialize variables to count passengers and calculate the total cost
+        int firstClassCount = 0;
+        int businessClassCount = 0;
+        int travellerClassCount = 0;
+        int totalCost = 0;
+
+        // Iterate through the passenger data
+        for (Passenger passenger : passengerData) {
+            String passengerClass = passenger.getPassengerClass();
+
+            if (passengerClass.equalsIgnoreCase("First")) {
+                firstClassCount++;
+                totalCost += 1800;
+            } else if (passengerClass.equalsIgnoreCase("Business")) {
+                businessClassCount++;
+                totalCost += 1200;
+            } else if (passengerClass.equalsIgnoreCase("Traveller")) {
+                travellerClassCount++;
+                totalCost += 1000;
+            }
+        }
+
+        // Print the report header
+        System.out.println("Class      Count      Cost");
+
+        // Print the report rows
+        System.out.println("First      " + firstClassCount + "         1800");
+        System.out.println("Business   " + businessClassCount + "         1200");
+        System.out.println("Traveller  " + travellerClassCount + "         1000");
+        System.out.println("Total Cost: " + totalCost);
+    }
+    
+    // Method to generate the detailed passenger report
+    public void generatePassengerReport() {
+        // Print the header for the detailed report
+        System.out.println("First name  Last name  Passport number  Seat reserved  Class  Seat type");
+
+        // Iterate through the passenger data and print passenger details in columns
+        for (Passenger passenger : passengerData) {
+            System.out.println(
+                passenger.getFirstName() + "  " +
+                passenger.getLastName() + "  " +
+                passenger.getPassportNumber() + "  " +
+                passenger.getSeatReserved() + "  " +
+                passenger.getPassengerClass() + "  " +
+                passenger.getSeatType()
+            );
+        }
+    }
+}
+
+package airline;
+
+import java.util.*;
+import airline.Passenger;
+
+public class AirlineReservationApp {
+	public static void main(String[] args) {
+        SeatMap seatMap = new SeatMap();
+        Scanner scanner = new Scanner(System.in);
+        char choice;
+        List<Passenger> passengers = new ArrayList<>();
+
+        do {
+        	System.out.print("\nDo you wish to reserve another seat? You are allowed to reserve 3 seats. Select Yes (Y) or No (N): ");
+            choice = scanner.nextLine().charAt(0);
+            // Check if the user wants to reserve multiple seats
+            if (choice == 'Y' || choice == 'y') {
+                // Add the code for reserving multiple seats here
+                System.out.print("Enter the number of seats required together: ");
+                int numSeats = scanner.nextInt();
+                scanner.nextLine();  // Consume the newline character
+
+                if (!canReserveSeats(numSeats)) {
+                    System.out.println("Sorry, you can reserve up to 3 seats together.");
+                } else {
+                    List<Passenger> passengerDetailsList = new ArrayList<>();
+
+                    for (int seatNumber = 1; seatNumber <= numSeats; seatNumber++) {
+                        // Prompt the user and make reservations for each seat in the loop
+                        System.out.println("Reserving seat " + seatNumber + " of " + numSeats);
+
+                        // Rest of the seat reservation code (class choice, passenger details) goes here
+                        System.out.print("Enter the choice of class (Business, Traveller, First) for seat " + seatNumber + ": ");
+                        String passengerClass = scanner.nextLine();
+
+                        System.out.print("Enter the choice of seat type (window, standard, aisle) or seat number for seat " + seatNumber + ": ");
+                        String seatTypeOrNumber = scanner.nextLine();
+
+                        System.out.print("Enter the passenger's first name for seat " + seatNumber + ": ");
+                        String firstName = scanner.nextLine();
+
+                        System.out.print("Enter the passenger's last name for seat " + seatNumber + ": ");
+                        String lastName = scanner.nextLine();
+
+                        System.out.print("Enter the passport number for seat " + seatNumber + ": ");
+                        String passportNumber = scanner.nextLine();
+
+                        // Create a new Passenger object with the provided details
+                        Passenger passenger = new Passenger(firstName, lastName, passportNumber, seatTypeOrNumber, passengerClass, seatTypeOrNumber);
+
+                        // Display passenger details for the reserved seat
+                        System.out.println("\nPassenger Details for seat " + seatNumber + ":");
+                        System.out.println("First Name: " + passenger.getFirstName());
+                        System.out.println("Last Name: " + passenger.getLastName());
+                        System.out.println("Passport Number: " + passenger.getPassportNumber());
+                        System.out.println("Seat Reserved: " + passenger.getSeatReserved());
+                        System.out.println("Passenger Class: " + passenger.getPassengerClass());
+                        System.out.println("Seat Type: " + passenger.getSeatType());
+
+                        // After a passenger reserves a seat, mark it as "X" in the seat map
+                        seatMap.markReservedSeat(passengerClass, passenger.getSeatReserved());
+
+                        // Add the passenger to the list
+                        passengerDetailsList.add(passenger);
+                    }
+
+                    // Display reservation details for multiple passengers
+                    System.out.println("Reservation details for " + numSeats + " passengers:");
+                    for (Passenger passengerDetails : passengerDetailsList) {
+                        // Display passenger details
+                    	
+                    
+                    }
+                    // Create an instance of the Report class with passenger data
+                    Report report = new Report(passengerDetailsList);
+                    
+                    // Generate and display the cost report
+                    report.generateCostReport();
+                    
+                    // Generate and display the detailed passenger report
+                    report.generatePassengerReport();
+                }                 
+            }
+            
+            // Add the code for passenger search here
+            System.out.print("Enter the passenger's last name to search: ");
+            String searchLastName = scanner.nextLine();
+
+            List<Passenger> foundPassengers = searchPassengersByLastName(passengers, searchLastName);
+
+            if (!foundPassengers.isEmpty()) {
+                System.out.println("Found passengers with last name " + searchLastName + ":");
+                for (Passenger foundPassenger : foundPassengers) {
+                    System.out.println("First name: " + foundPassenger.getFirstName());
+                    System.out.println("Last name: " + foundPassenger.getLastName());
+                    System.out.println("Passport number: " + foundPassenger.getPassportNumber());
+                    System.out.println("Seat reserved: " + foundPassenger.getSeatReserved());
+                    System.out.println("Class: " + foundPassenger.getPassengerClass());
+                    System.out.println("Type: " + foundPassenger.getSeatType());
+                    System.out.println("------------------------");
+                }
+            } else {
+                System.out.println("No passengers found with last name " + searchLastName);
+            }
+        } while (choice == 'Y' || choice == 'y');
+
+        // Display the passenger information in a tabular form
+        System.out.println("Passenger Details Table:");
+        System.out.println("-------------------------------------------------------------");
+        System.out.println("| First Name      | Last Name       | Passport Number | Seat Reserved   | Passenger Class | Seat Type       |");
+        System.out.println("-------------------------------------------------------------");
+
+        for (Passenger passenger : passengers) {
+            // Access passenger details using getter methods
+            System.out.printf("| %-15s | %-15s | %-15s | %-15s | %-15s | %-15s |%n",
+                    passenger.getFirstName(),
+                    passenger.getLastName(),
+                    passenger.getPassportNumber(),
+                    passenger.getSeatReserved(),
+                    passenger.getPassengerClass(),
+                    passenger.getSeatType());
+        }
+
+        System.out.println("-------------------------------------------------------------");
+
+        // Ask if the passenger wants to cancel their reservation
+        System.out.print("\nDo you want to cancel your reservation? Select Yes (Y) or No (N): ");
+        char cancelChoice = scanner.nextLine().charAt(0);
+
+        if (cancelChoice == 'Y' || cancelChoice == 'y') {
+            System.out.print("Enter your passport number to confirm cancellation: ");
+            String passportNumber = scanner.nextLine();
+
+            Passenger foundPassenger = searchPassengerByPassport(passengers, passportNumber);
+
+            if (foundPassenger != null) {
+                String seatReserved = foundPassenger.getSeatReserved();
+                seatMap.markCancelledSeat(seatReserved);
+                passengers.remove(foundPassenger);
+                System.out.println("Your reservation for seat " + seatReserved + " has been canceled.");
+            } else {
+                System.out.println("Passport number not found. Cancellation failed.");
+            }
+        } else if (cancelChoice == 'N' || cancelChoice == 'n') {
+            System.out.println("Happy flight!");
+        } else {
+            System.out.println("Invalid choice. Cancellation failed.");
+        }
+
+        // Get user input for seating map choice
+        System.out.print("Enter the choice of seating map (Business, Traveller, First) to view: ");
+        String className = scanner.nextLine();
+
+        // Display seating map
+        System.out.println("Seating Map for " + className + " Class:");
+        seatMap.displaySeatMap(className);
+
+        System.out.println("Thank you for using the Airline Reservation App!");
+    }
+
+    // Implement the searchPassengerByPassport method as described in the pseudo code
+    private static Passenger searchPassengerByPassport(List<Passenger> passengerList, String passportNumber) {
+        for (Passenger passenger : passengerList) {
+            if (passenger.getPassportNumber().equals(passportNumber)) {
+                return passenger;
+            }
+        }
+        return null;
+    }
+    
+    // Find Passenger by name
+    private static List<Passenger> searchPassengersByLastName(List<Passenger> passengerList, String lastName) {
+        List<Passenger> foundPassengers = new ArrayList<>();
+
+        for (Passenger passenger : passengerList) {
+            if (passenger.getLastName().equalsIgnoreCase(lastName)) {
+                foundPassengers.add(passenger);
+            }
+        }
+
+        return foundPassengers;
+    	}
+    
+    // limit reservation to 3 people per group
+    private static boolean canReserveSeats(int numSeats) {
+        return numSeats <= 3;
+    }
+}
+
